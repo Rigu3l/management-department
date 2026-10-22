@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en" class="no-scrollbar">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Executive Dashboard — Management Department</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="dashboard">
+  <div class="layout">
+    <div id="sidebar"></div>
+    <div class="main-wrap">
+      <div class="mobile-topbar">
+        <button class="icon-btn" id="btn-menu" aria-label="Open menu"><span data-icon="menu" data-icon-size="20"></span></button>
+        <span class="title">Executive Dashboard</span>
+      </div>
+
+      <main class="page">
+        <div class="head-row">
+          <div class="page-head">
+            <h1>Executive Dashboard</h1>
+            <p id="dash-subtitle">Last 7 days</p>
+          </div>
+          <div class="filter-bar">
+            <div class="period-group">
+              <button data-period="daily">Daily</button>
+              <button data-period="weekly" class="active">Weekly</button>
+              <button data-period="monthly">Monthly</button>
+              <button data-period="yearly">Yearly</button>
+              <button data-period="custom">Custom range</button>
+            </div>
+            <div class="date-range">
+              <input type="date" id="f-from" />
+              <span>to</span>
+              <input type="date" id="f-to" />
+            </div>
+          </div>
+        </div>
+
+        <div id="dash-error"></div>
+        <div id="dash-loading" class="loading">Loading dashboard…</div>
+
+        <div id="dash-content" class="hidden">
+          <div class="grid grid-4">
+            <div class="card stat-card">
+              <div class="stat-icon accent"><span data-icon="bed" data-icon-size="20"></span></div>
+              <div style="min-width:0">
+                <div class="stat-label">Occupancy rate</div>
+                <div class="stat-value" id="c-occupancy">—</div>
+                <div class="stat-sub" id="c-occupancy-sub"></div>
+              </div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon"><span data-icon="trend" data-icon-size="20"></span></div>
+              <div style="min-width:0">
+                <div class="stat-label">Total revenue</div>
+                <div class="stat-value" id="c-revenue">—</div>
+                <div class="stat-sub" id="c-revenue-sub"></div>
+              </div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon"><span data-icon="wallet" data-icon-size="20"></span></div>
+              <div style="min-width:0">
+                <div class="stat-label">Total expenses</div>
+                <div class="stat-value" id="c-expenses">—</div>
+                <div class="stat-sub" id="c-expenses-sub"></div>
+              </div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon"><span data-icon="calendar" data-icon-size="20"></span></div>
+              <div style="min-width:0">
+                <div class="stat-label">Reservations</div>
+                <div class="stat-value" id="c-reservations">—</div>
+                <div class="stat-sub" id="c-reservations-sub"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-3 mt">
+            <div class="card stat-card">
+              <div class="stat-icon"><span data-icon="star" data-icon-size="20"></span></div>
+              <div style="min-width:0">
+                <div class="stat-label">Guest satisfaction</div>
+                <div class="stat-value" id="c-satisfaction">—</div>
+                <div class="stat-sub" id="c-satisfaction-sub"></div>
+              </div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon"><span data-icon="tool" data-icon-size="20"></span></div>
+              <div style="min-width:0">
+                <div class="stat-label">Open operational tasks</div>
+                <div class="stat-value" id="c-tasks">—</div>
+                <div class="stat-sub" id="c-tasks-sub"></div>
+              </div>
+            </div>
+            <div class="card stat-card">
+              <div class="stat-icon"><span data-icon="bell" data-icon-size="20"></span></div>
+              <div style="min-width:0">
+                <div class="stat-label">Unread alerts</div>
+                <div class="stat-value" id="c-alerts">—</div>
+                <div class="stat-sub" id="c-alerts-sub"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid cols-2fr-1fr mt">
+            <div class="card">
+              <div class="card-head">
+                <h3>Revenue vs expenses</h3>
+                <span class="period-note" id="trend-range"></span>
+              </div>
+              <div class="chart-box"><canvas id="chart-trend"></canvas></div>
+            </div>
+            <div class="card">
+              <h3>Outstanding work</h3>
+              <div id="outstanding-list"></div>
+              <a class="btn btn-primary btn-block" href="alerts.html" style="text-decoration:none">View operational alerts</a>
+            </div>
+          </div>
+
+          <div class="grid cols-2fr-1fr mt">
+            <div class="card">
+              <h3>Department performance</h3>
+              <div class="chart-box"><canvas id="chart-dept"></canvas></div>
+            </div>
+            <div class="card">
+              <h3>KPI attainment</h3>
+              <div id="kpi-list"></div>
+              <a class="link-btn" href="budgets.html" style="text-decoration:none">Manage budgets &amp; targets →</a>
+            </div>
+          </div>
+
+          <div class="grid grid-2 mt">
+            <div class="card">
+              <div class="card-head">
+                <h3>Recent decisions</h3>
+                <a class="link-btn" href="decisions.html" style="text-decoration:none;font-size:12px">Open decision tracking</a>
+              </div>
+              <div id="recent-decisions"></div>
+            </div>
+            <div class="card">
+              <div class="card-head">
+                <h3>Latest alerts</h3>
+                <a class="link-btn" href="alerts.html" style="text-decoration:none;font-size:12px">View all alerts</a>
+              </div>
+              <div id="latest-alerts"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/mock.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+</body>
+</html>

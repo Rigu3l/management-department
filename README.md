@@ -15,15 +15,16 @@ System write to, so every figure it shows is current.
 
 ## Tech stack
 
-- **Frontend:** React 19 + Vite + Tailwind CSS v4 + Chart.js, jsPDF (exports)
+- **Frontend:** HTML, CSS, and JavaScript (vanilla — no framework, no build step)
 - **Backend:** PHP 8 (PDO) JSON API
 - **Database:** MySQL / MariaDB (XAMPP)
+- Chart.js and jsPDF are bundled locally under `assets/vendor/` (no CDN, works offline)
 
 ## The 25 features
 
 | # | Feature | Where |
 |---|---------|-------|
-| 1 | Executive dashboard | Dashboard |
+| 1 | Executive dashboard | `index.html` |
 | 2 | Hotel occupancy monitoring | Dashboard + Reports |
 | 3 | Revenue performance monitoring | Dashboard + Reports |
 | 4 | Expense monitoring | Dashboard + Reports |
@@ -53,52 +54,53 @@ System write to, so every figure it shows is current.
 
 ```
 management-department/
-├── database/
-│   ├── schema.sql        — the shared hotel database (16 tables) + departments/rooms seed
-│   └── seed-data.sql     — demo records (CURDATE()-relative: always the last ~90 days)
-├── backend/
-│   ├── config/           — bootstrap.php (periods, shared metrics), database.php (PDO)
-│   └── api/              — dashboard.php, reports.php, budgets.php, decisions.php, alerts.php
-└── frontend/             — Vite + React app (src/pages, src/components, src/lib)
+├── index.html            — Executive Dashboard (the module's home page)
+├── reports.html          — Reports hub (17 report types + CSV/PDF export)
+├── budgets.html          — Budget & target management
+├── decisions.html        — Management decision tracking
+├── alerts.html           — Operational alerts & notifications
+├── assets/
+│   ├── css/styles.css    — light beige & pink theme
+│   ├── js/               — common.js (shared data layer), mock.js (demo data),
+│   │                       dashboard.js, reports.js, budgets.js, decisions.js, alerts.js
+│   ├── img/              — logo + favicon
+│   └── vendor/           — Chart.js, jsPDF, jsPDF-AutoTable (bundled, offline)
+├── api/                  — PHP JSON endpoints: dashboard, reports, budgets, decisions, alerts
+├── config/               — bootstrap.php (periods, shared metrics), database.php (PDO)
+└── database/
+    ├── schema.sql        — the shared hotel database (16 tables) + departments/rooms seed
+    └── seed-data.sql     — demo records (CURDATE()-relative: always the last ~90 days)
 ```
 
 ## Setup on XAMPP (Windows)
 
-1. **Clone** this repository, e.g. into `C:\xampp\htdocs\management-department`.
+1. **Clone** this repository straight into your web root, e.g.
+   `C:\xampp\htdocs\management-department`.
 2. **Start** Apache and MySQL in the XAMPP control panel.
 3. **Create the database:** open phpMyAdmin → Import → run `database/schema.sql`,
    then import `database/seed-data.sql` for demo records.
    (Database name: `hotel_management`. Default connection is `root` with no
    password; override with the `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`,
    `DB_PASS` environment variables if yours differ.)
-4. **Build the frontend:**
-   ```
-   cd frontend
-   npm install
-   npm run build
-   ```
-5. **Deploy:** copy the contents of `frontend/dist/` into your web folder
-   (e.g. `C:\xampp\htdocs\management\`), and copy `backend/api/` and
-   `backend/config/` into the **same** folder, so `api/` sits beside
-   `index.html`. The app derives its API path from the page URL, so it works
-   from any subfolder without rebuilding.
-6. Open `http://localhost/management/` — the Executive Dashboard loads
-   directly (no login in this module).
+4. Open **http://localhost/management-department/** — `index.html` is the
+   Executive Dashboard, and it loads directly (no login in this module).
 
-## Development mode
+That's it — there is **no build step**. Edit any `.html`, `.css`, or `.js`
+file and refresh the browser.
+
+## Development without XAMPP
 
 ```
-cd frontend && npm run dev          # Vite dev server (proxies /api)
-php -S localhost:8000 -t backend    # in a second terminal, from the repo root
+php -S localhost:8000          # from the repo root — serves pages + API
 ```
 
 ## Demo mode
 
-If the PHP API is unreachable (for example, opening the built frontend
-without XAMPP running), the app automatically runs on built-in demo data
-generated relative to today, so every page, report, and form can be
-previewed and demonstrated without a database. Start XAMPP and reload to
-switch to the live database.
+If the PHP API is unreachable (for example, opening the pages from a plain
+static server or from disk), the app automatically runs on built-in demo
+data generated relative to today (`assets/js/mock.js`), so every page,
+report, and form can be previewed and demonstrated without a database.
+Run it through XAMPP and reload to switch to the live database.
 
 ## Notes for the other department modules
 
@@ -110,4 +112,5 @@ switch to the live database.
 - Accounts are created/authenticated by the login module (`users` table);
   this module never handles passwords.
 - All dates/times are Philippine time (Asia/Manila, UTC+8): PHP sets the
-  timezone in `bootstrap.php` and the MySQL session in `database.php`.
+  timezone in `config/bootstrap.php` and the MySQL session in
+  `config/database.php`.

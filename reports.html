@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reports — Management Department</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="reports">
+  <div class="layout">
+    <div id="sidebar"></div>
+    <div class="main-wrap">
+      <div class="mobile-topbar">
+        <button class="icon-btn" id="btn-menu" aria-label="Open menu"><span data-icon="menu" data-icon-size="20"></span></button>
+        <span class="title">Reports</span>
+      </div>
+
+      <main class="page">
+        <div class="page-head">
+          <h1>Reports</h1>
+          <p>Generate management reports from the shared hotel database, filter by period and department, and export them.</p>
+        </div>
+
+        <div class="report-layout">
+          <div class="card report-menu" id="report-menu"></div>
+
+          <div style="min-width:0">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3 id="report-title" style="font-size:18px">Report</h3>
+                  <div class="period-note" id="report-period"></div>
+                </div>
+              </div>
+              <div class="filter-bar">
+                <div class="period-group">
+                  <button data-period="daily">Daily</button>
+                  <button data-period="weekly" class="active">Weekly</button>
+                  <button data-period="monthly">Monthly</button>
+                  <button data-period="yearly">Yearly</button>
+                  <button data-period="custom">Custom range</button>
+                </div>
+                <div class="date-range">
+                  <input type="date" id="f-from" />
+                  <span>to</span>
+                  <input type="date" id="f-to" />
+                </div>
+                <span id="dept-wrap" class="hidden"><select id="f-dept"></select></span>
+                <div class="export-btns">
+                  <button class="btn btn-sm" id="btn-export-csv"><span data-icon="download" data-icon-size="14"></span> CSV</button>
+                  <button class="btn btn-primary btn-sm" id="btn-export-pdf"><span data-icon="download" data-icon-size="14"></span> PDF</button>
+                </div>
+              </div>
+
+              <div id="report-error" style="margin-top:16px"></div>
+              <div id="report-loading" class="loading">Loading report…</div>
+              <div id="report-body" class="hidden" style="margin-top:20px">
+                <div class="chips" id="report-summary" style="margin-bottom:20px"></div>
+                <div class="chart-box" id="chart-wrap" style="margin-bottom:20px"><canvas id="chart-report"></canvas></div>
+                <div class="table-wrap nice-scroll" id="report-table"></div>
+              </div>
+            </div>
+
+            <div class="card mt hidden" id="extra-comments">
+              <h3>Latest guest comments</h3>
+              <div id="comments-list"></div>
+            </div>
+            <div class="card mt hidden" id="extra-source">
+              <h3>Reservations by source</h3>
+              <div class="chips" id="source-list"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/vendor/jspdf.umd.min.js"></script>
+  <script src="assets/vendor/jspdf.plugin.autotable.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/mock.js"></script>
+  <script src="assets/js/reports.js"></script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decision Tracking — Management Department</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="decisions">
+  <div class="layout">
+    <div id="sidebar"></div>
+    <div class="main-wrap">
+      <div class="mobile-topbar">
+        <button class="icon-btn" id="btn-menu" aria-label="Open menu"><span data-icon="menu" data-icon-size="20"></span></button>
+        <span class="title">Decision Tracking</span>
+      </div>
+
+      <main class="page">
+        <div class="head-row">
+          <div class="page-head">
+            <h1>Decision Tracking</h1>
+            <p>Management decisions, who is responsible for each, and their follow-up deadlines.</p>
+          </div>
+          <button class="btn btn-primary" id="btn-add-decision">
+            <span data-icon="plus" data-icon-size="15"></span> Record decision
+          </button>
+        </div>
+
+        <div class="summary-strip" id="dec-summary"></div>
+
+        <div class="card">
+          <div class="toolbar">
+            <div class="search-wrap">
+              <span data-icon="search" data-icon-size="15"></span>
+              <input id="d-q" class="input" placeholder="Search decisions, assignees…" />
+            </div>
+            <select id="d-status">
+              <option value="">All statuses</option>
+              <option value="pending">pending</option>
+              <option value="in_progress">in progress</option>
+              <option value="completed">completed</option>
+            </select>
+            <select id="d-dept"></select>
+          </div>
+          <div id="dec-error"></div>
+          <div class="table-wrap nice-scroll">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Decision</th><th>Responsible</th><th>Department</th>
+                  <th>Deadline</th><th>Status</th><th style="width:80px"></th>
+                </tr>
+              </thead>
+              <tbody id="dec-rows"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Decision form modal -->
+  <div class="modal-backdrop hidden" id="modal-decision">
+    <div class="scrim2"></div>
+    <div class="modal wide">
+      <div class="modal-head">
+        <h2 id="df-title">Record decision</h2>
+        <button class="icon-btn" data-close aria-label="Close"><span data-icon="x"></span></button>
+      </div>
+      <div class="modal-body">
+        <label class="field"><span>Decision</span>
+          <input id="df-name" class="input" placeholder="e.g. Approve weekend promo rate for Deluxe rooms" />
+        </label>
+        <label class="field"><span>Details</span>
+          <textarea id="df-desc" class="input" rows="3" placeholder="What was decided, and why?"></textarea>
+        </label>
+        <div class="form-grid">
+          <label class="field"><span>Decided by</span>
+            <input id="df-by" class="input" placeholder="e.g. Maria Clara Santos" />
+          </label>
+          <label class="field"><span>Responsible (assigned to)</span>
+            <input id="df-to" class="input" placeholder="e.g. Ana Patricia Lim" />
+          </label>
+          <label class="field"><span>Department</span>
+            <select id="df-dept" class="input" style="width:100%"></select>
+          </label>
+          <div class="form-grid">
+            <label class="field"><span>Deadline</span>
+              <input type="date" id="df-deadline" class="input" />
+            </label>
+            <label class="field"><span>Status</span>
+              <select id="df-status" class="input" style="width:100%">
+                <option value="pending">pending</option>
+                <option value="in_progress">in progress</option>
+                <option value="completed">completed</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="form-error" id="df-error"></div>
+        <div class="modal-actions">
+          <button class="btn" data-close>Cancel</button>
+          <button class="btn btn-primary" id="df-save">Save decision</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/mock.js"></script>
+  <script src="assets/js/decisions.js"></script>
+</body>
+</html>

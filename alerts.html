@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operational Alerts — Management Department</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="alerts">
+  <div class="layout">
+    <div id="sidebar"></div>
+    <div class="main-wrap">
+      <div class="mobile-topbar">
+        <button class="icon-btn" id="btn-menu" aria-label="Open menu"><span data-icon="menu" data-icon-size="20"></span></button>
+        <span class="title">Operational Alerts</span>
+      </div>
+
+      <main class="page" style="max-width:1024px">
+        <div class="head-row">
+          <div class="page-head">
+            <h1>Operational Alerts</h1>
+            <p id="alerts-subtitle">Alerts raised by hotel operations and by the management team.</p>
+          </div>
+          <button class="btn btn-primary" id="btn-add-alert">
+            <span data-icon="plus" data-icon-size="15"></span> New alert
+          </button>
+        </div>
+
+        <div class="filter-bar" style="margin-bottom:16px">
+          <div class="period-group" id="status-group">
+            <button data-status="" class="active">All</button>
+            <button data-status="unread">Unread</button>
+            <button data-status="read">Read</button>
+            <button data-status="resolved">Resolved</button>
+          </div>
+          <select id="a-severity">
+            <option value="">All severities</option>
+            <option value="info">info</option>
+            <option value="warning">warning</option>
+            <option value="critical">critical</option>
+          </select>
+        </div>
+
+        <div id="alerts-error"></div>
+        <div class="stack" id="alert-list"></div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Alert form modal -->
+  <div class="modal-backdrop hidden" id="modal-alert">
+    <div class="scrim2"></div>
+    <div class="modal">
+      <div class="modal-head">
+        <h2>New alert / announcement</h2>
+        <button class="icon-btn" data-close aria-label="Close"><span data-icon="x"></span></button>
+      </div>
+      <div class="modal-body">
+        <label class="field"><span>Title</span>
+          <input id="af-title" class="input" placeholder="e.g. Staff meeting moved to 3 PM" />
+        </label>
+        <label class="field"><span>Message</span>
+          <textarea id="af-message" class="input" rows="3" placeholder="Details for the departments…"></textarea>
+        </label>
+        <div class="form-grid">
+          <label class="field"><span>Severity</span>
+            <select id="af-severity" class="input" style="width:100%">
+              <option>info</option><option>warning</option><option>critical</option>
+            </select>
+          </label>
+          <label class="field"><span>Source</span>
+            <select id="af-source" class="input" style="width:100%">
+              <option>Management</option><option>Occupancy</option><option>Inventory</option>
+              <option>Maintenance</option><option>Housekeeping</option><option>Finance</option>
+              <option>Guest feedback</option><option>System</option>
+            </select>
+          </label>
+        </div>
+        <div class="form-error" id="af-error"></div>
+        <div class="modal-actions">
+          <button class="btn" data-close>Cancel</button>
+          <button class="btn btn-primary" id="af-save">Post alert</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/mock.js"></script>
+  <script src="assets/js/alerts.js"></script>
+</body>
+</html>
