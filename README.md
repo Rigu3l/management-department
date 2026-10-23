@@ -82,8 +82,9 @@ management-department/
    (Database name: `hotel_management`. Default connection is `root` with no
    password; override with the `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`,
    `DB_PASS` environment variables if yours differ.)
-4. Open **http://localhost/management-department/** — `index.html` is the
+4. Open **http://localhost:8080/management-department/** — `index.html` is the
    Executive Dashboard, and it loads directly (no login in this module).
+   (Port `:8080` is where your XAMPP Apache listens — same as CelCheck.)
 
 That's it — there is **no build step**. Edit any `.html`, `.css`, or `.js`
 file and refresh the browser.
