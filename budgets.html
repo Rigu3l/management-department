@@ -25,7 +25,7 @@
       <main class="page">
         <div class="page-head">
           <h1>Budgets &amp; Targets</h1>
-          <p>Set monthly budgets and KPI targets, and track them against what the hotel actually spends and achieves.</p>
+          <p>Monthly budgets and KPI targets, tracked against what the hotel actually spends and achieves.</p>
         </div>
 
         <div class="tabs">
@@ -42,9 +42,6 @@
                 <input type="month" id="bud-month" class="input" style="width:auto" />
               </label>
               <span id="bud-totals" style="font-size:14px;color:var(--muted)"></span>
-              <button class="btn btn-primary" id="btn-add-budget" style="margin-left:auto">
-                <span data-icon="plus" data-icon-size="15"></span> Add budget
-              </button>
             </div>
             <div id="bud-error"></div>
             <div class="table-wrap nice-scroll">
@@ -52,7 +49,7 @@
                 <thead>
                   <tr>
                     <th>Department</th><th>Category</th><th>Budget</th><th>Spent</th>
-                    <th>Remaining</th><th style="width:190px">Used</th><th style="width:80px"></th>
+                    <th>Remaining</th><th style="width:190px">Used</th>
                   </tr>
                 </thead>
                 <tbody id="bud-rows"></tbody>
@@ -66,9 +63,6 @@
           <div class="card">
             <div class="toolbar">
               <span style="font-size:14px;color:var(--muted)">Actuals measured for <strong id="tgt-range-label" style="color:var(--ink)"></strong></span>
-              <button class="btn btn-primary" id="btn-add-target" style="margin-left:auto">
-                <span data-icon="plus" data-icon-size="15"></span> Add KPI target
-              </button>
             </div>
             <div class="filter-bar" style="margin-bottom:8px">
               <div class="period-group">
@@ -90,7 +84,7 @@
                 <thead>
                   <tr>
                     <th>KPI</th><th>Department</th><th>Actual</th><th>Target</th>
-                    <th style="width:210px">Attainment</th><th style="width:80px"></th>
+                    <th style="width:210px">Attainment</th>
                   </tr>
                 </thead>
                 <tbody id="tgt-rows"></tbody>
@@ -99,81 +93,6 @@
           </div>
         </section>
       </main>
-    </div>
-  </div>
-
-  <!-- Budget form modal -->
-  <div class="modal-backdrop hidden" id="modal-budget">
-    <div class="scrim2"></div>
-    <div class="modal">
-      <div class="modal-head">
-        <h2 id="bf-title">Add budget</h2>
-        <button class="icon-btn" data-close aria-label="Close"><span data-icon="x"></span></button>
-      </div>
-      <div class="modal-body">
-        <label class="field"><span>Department</span>
-          <select id="bf-dept" class="input" style="width:100%"></select>
-        </label>
-        <label class="field"><span>Category</span>
-          <select id="bf-category" class="input" style="width:100%"></select>
-        </label>
-        <div class="form-grid">
-          <label class="field"><span>Month</span>
-            <input type="month" id="bf-month" class="input" />
-          </label>
-          <label class="field"><span>Amount (₱)</span>
-            <input type="number" id="bf-amount" class="input" min="0" step="0.01" placeholder="0.00" />
-          </label>
-        </div>
-        <label class="field"><span>Notes (optional)</span>
-          <input id="bf-notes" class="input" placeholder="e.g. Monthly utilities budget" />
-        </label>
-        <div class="form-error" id="bf-error"></div>
-        <div class="modal-actions">
-          <button class="btn" data-close>Cancel</button>
-          <button class="btn btn-primary" id="bf-save">Save budget</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- KPI target form modal -->
-  <div class="modal-backdrop hidden" id="modal-target">
-    <div class="scrim2"></div>
-    <div class="modal">
-      <div class="modal-head">
-        <h2 id="tf-title">Add KPI target</h2>
-        <button class="icon-btn" data-close aria-label="Close"><span data-icon="x"></span></button>
-      </div>
-      <div class="modal-body">
-        <label class="field"><span>KPI name</span>
-          <input id="tf-name" class="input" placeholder="e.g. Occupancy rate" />
-        </label>
-        <label class="field"><span>Department</span>
-          <select id="tf-dept" class="input" style="width:100%"></select>
-        </label>
-        <div class="form-grid-3">
-          <label class="field"><span>Target value</span>
-            <input type="number" id="tf-value" class="input" min="0" step="0.01" />
-          </label>
-          <label class="field"><span>Unit</span>
-            <select id="tf-unit" class="input" style="width:100%">
-              <option>%</option><option>rating</option><option>hours</option><option>PHP</option><option>count</option>
-            </select>
-          </label>
-          <label class="field"><span>Period</span>
-            <select id="tf-period" class="input" style="width:100%">
-              <option>daily</option><option>weekly</option><option selected>monthly</option><option>yearly</option>
-            </select>
-          </label>
-        </div>
-        <p class="form-note">KPIs named Occupancy rate, Guest satisfaction, ADR, RevPAR, Housekeeping completion, Maintenance response time or Complaint resolution are measured automatically.</p>
-        <div class="form-error" id="tf-error"></div>
-        <div class="modal-actions">
-          <button class="btn" data-close>Cancel</button>
-          <button class="btn btn-primary" id="tf-save">Save target</button>
-        </div>
-      </div>
     </div>
   </div>
 
