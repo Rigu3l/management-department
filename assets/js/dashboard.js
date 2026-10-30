@@ -1,6 +1,7 @@
 /* assets/js/dashboard.js — Executive dashboard page (index.html).
-   Fills the stat cards, charts, KPI bars, outstanding work, recent
-   decisions and latest alerts from the data layer (PHP API or demo). */
+   Fills the stat cards, charts, KPI bars and outstanding work from
+   the data layer (PHP API or demo). Decisions and alerts live on their
+   own pages; unread alerts are shown on the topbar bell icon. */
 (function () {
   'use strict';
   const H = window.HMS;
@@ -36,14 +37,9 @@
     $('c-expenses-sub').textContent = 'Net income ' + H.peso(c.net);
     $('c-reservations').textContent = c.reservations;
     $('c-reservations-sub').textContent = c.arrivals + ' arrivals · ' + c.departures + ' departures';
-    $('c-satisfaction').textContent = c.satisfaction != null ? H.rating(c.satisfaction) : '—';
-    $('c-satisfaction-sub').textContent = c.satisfaction_responses + ' responses in period';
     $('c-tasks').textContent = c.open_tasks;
     $('c-tasks-sub').textContent = data.outstanding.maintenance_open + ' maintenance · '
       + data.outstanding.housekeeping_pending + ' housekeeping';
-    $('c-alerts').textContent = c.unread_alerts;
-    $('c-alerts-sub').textContent = data.outstanding.complaints_open + ' open complaints · '
-      + data.outstanding.low_stock + ' low-stock items';
 
     H.renderChart('chart-trend', {
       kind: 'line',
@@ -80,22 +76,6 @@
       + '<span class="kpi-vals">' + (k.actual != null ? k.actual + ' / ' + k.target + ' ' + H.esc(k.unit) : 'target ' + k.target + ' ' + H.esc(k.unit)) + '</span></div>'
       + H.progressBar(k.attainment || 0) + '</div>'
     ).join('');
-
-    $('recent-decisions').innerHTML = data.recent_decisions.length
-      ? data.recent_decisions.map((d) =>
-          '<div class="list-row"><div class="grow"><div class="row-title">' + H.esc(d.title) + '</div>'
-          + '<div class="row-sub">' + H.esc(d.assigned_to || 'Unassigned') + ' · due ' + (d.deadline ? H.fmtDate(d.deadline) : '—') + '</div></div>'
-          + H.pill(d.status) + '</div>').join('')
-      : '<div style="font-size:14px;color:var(--muted)">No decisions recorded yet.</div>';
-
-    $('latest-alerts').innerHTML = data.latest_alerts.length
-      ? data.latest_alerts.map((a) =>
-          '<div class="list-row"><span class="mini-icon sev-' + H.esc(a.severity) + '">' + H.icon('bell', 15) + '</span>'
-          + '<div class="grow"><div class="row-title">' + H.esc(a.title) + '</div>'
-          + '<div class="row-sub">' + H.esc(a.source) + ' · ' + H.esc(a.status) + '</div></div>'
-          + (a.status === 'unread' ? '<span class="unread-dot"></span>' : '')
-          + '</div>').join('')
-      : '<div style="font-size:14px;color:var(--muted)">No alerts.</div>';
   }
 
   document.addEventListener('DOMContentLoaded', () => {

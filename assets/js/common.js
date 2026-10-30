@@ -1,6 +1,7 @@
 /* assets/js/common.js — shared code for every page of the Management
    Department module: reference data, formatting, the API client with
-   demo-data fallback, charts, exports, and the sidebar.
+   demo-data fallback, charts, exports, the sidebar, and the topbar
+   (sidebar toggle, date/time, unread-alert bell).
    Plain JavaScript — no framework, no build step. */
 (function () {
   'use strict';
@@ -369,12 +370,57 @@
     });
     panel.querySelectorAll('.nav-item').forEach((a) => a.addEventListener('click', close));
 
-    // Unread-alert badge
+    // Unread-alert badge (sidebar item and topbar bell share the count)
     store.getAlerts({ status: 'unread' }).then((r) => {
-      const badge = document.getElementById('nav-alert-badge');
       const n = r.unread != null ? r.unread : (r.data || []).length;
-      if (badge && n > 0) { badge.textContent = n; badge.classList.remove('hidden'); }
+      if (n > 0) {
+        ['nav-alert-badge', 'topbar-alert-badge'].forEach((id) => {
+          const badge = document.getElementById(id);
+          if (badge) { badge.textContent = n; badge.classList.remove('hidden'); }
+        });
+      }
     }).catch(() => {});
+  }
+
+  // -------------------------------------------------------------- topbar
+  // Desktop bar above every page: sidebar toggle on the left, live date
+  // and time plus a notification bell (unread-alert count) on the right.
+  // On small screens the bar hides and the per-page mobile topbar takes
+  // over, so the toggle button here only needs the desktop collapse.
+  const SIDEBAR_KEY = 'mgmt-sidebar-collapsed';
+  function initTopbar() {
+    const wrap = document.querySelector('.main-wrap');
+    const main = wrap && wrap.querySelector('main');
+    if (!wrap || !main) return;
+    const bar = document.createElement('div');
+    bar.className = 'topbar';
+    bar.innerHTML =
+      '<button class="icon-btn" id="btn-sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar">'
+      + icon('menu', 20) + '</button>'
+      + '<span class="topbar-spacer"></span>'
+      + '<div class="topbar-datetime"><div class="topbar-date" id="topbar-date"></div>'
+      + '<div class="topbar-time" id="topbar-time"></div></div>'
+      + '<a class="topbar-bell" href="alerts.html" aria-label="Operational alerts" title="Operational alerts">'
+      + icon('bell', 20) + '<span class="topbar-bell-badge hidden" id="topbar-alert-badge">0</span></a>';
+    wrap.insertBefore(bar, main);
+
+    if (window.localStorage && localStorage.getItem(SIDEBAR_KEY) === '1') {
+      document.body.classList.add('sidebar-collapsed');
+    }
+    document.getElementById('btn-sidebar-toggle').addEventListener('click', () => {
+      const collapsed = document.body.classList.toggle('sidebar-collapsed');
+      if (window.localStorage) localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
+    });
+
+    const tick = () => {
+      const now = new Date();
+      const dateEl = document.getElementById('topbar-date');
+      const timeEl = document.getElementById('topbar-time');
+      if (dateEl) dateEl.textContent = now.toLocaleDateString('en-PH', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      if (timeEl) timeEl.textContent = now.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit' });
+    };
+    tick();
+    setInterval(tick, 30000);
   }
 
   // --------------------------------------------------------- filter bar
@@ -475,6 +521,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     renderSidebar();
+    initTopbar();
     initModals();
   });
 })();
