@@ -1,6 +1,9 @@
 /* assets/js/decisions.js — Decision Tracking page (decisions.html).
    Record management decisions with a responsible person and a
-   follow-up deadline; monitor status to completion. */
+   follow-up deadline; monitor status to completion. A deadline can
+   never be set in the past — the picker blocks past dates, and saving
+   one is rejected. An already-overdue decision keeps its deadline
+   when edited, so overdue items stay editable. */
 (function () {
   'use strict';
   const H = window.HMS;
@@ -88,11 +91,25 @@
     $('df-to').value = row ? (row.assigned_to || '') : '';
     $('df-dept').value = row && row.department_id != null ? String(row.department_id) : '';
     $('df-deadline').value = row && row.deadline ? String(row.deadline).slice(0, 10) : '';
+    // New decisions: no past dates. Editing: the existing deadline stays
+    // selectable (overdue items must remain editable), nothing earlier.
+    const today = H.todayISO();
+    const existing = row && row.deadline ? String(row.deadline).slice(0, 10) : '';
+    $('df-deadline').min = existing && existing < today ? existing : today;
     $('df-status').value = row ? row.status : 'pending';
     H.openModal('modal-decision');
   }
 
   async function save() {
+    // The picker blocks past dates, but typed input can bypass it, so
+    // validate here too. An unchanged existing deadline is allowed
+    // through, even when it is already past (overdue).
+    const dl = $('df-deadline').value;
+    const orig = editing && editing.deadline ? String(editing.deadline).slice(0, 10) : null;
+    if (dl && dl < H.todayISO() && dl !== orig) {
+      $('df-error').textContent = 'Deadline cannot be in the past. Please choose today or a later date.';
+      return;
+    }
     const btn = $('df-save');
     btn.disabled = true;
     $('df-error').textContent = '';

@@ -54,8 +54,15 @@
                 </div>
                 <span id="dept-wrap" class="hidden"><select id="f-dept"></select></span>
                 <div class="export-btns">
-                  <button class="btn btn-sm" id="btn-export-csv"><span data-icon="download" data-icon-size="14"></span> CSV</button>
-                  <button class="btn btn-primary btn-sm" id="btn-export-pdf"><span data-icon="download" data-icon-size="14"></span> PDF</button>
+                  <div class="export-menu">
+                    <button class="btn btn-primary btn-sm" id="btn-export" aria-haspopup="true" aria-expanded="false">
+                      <span data-icon="download" data-icon-size="14"></span> Export As ▾
+                    </button>
+                    <div class="export-menu-list hidden" id="export-menu-list" role="menu">
+                      <button role="menuitem" data-export="csv">CSV</button>
+                      <button role="menuitem" data-export="pdf">PDF</button>
+                    </div>
+                  </div>
                 </div>
               </div>
 

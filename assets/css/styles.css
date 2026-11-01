@@ -257,6 +257,19 @@ select.input { width: auto; }
   padding: 8px 12px; font-size: 12px; font-weight: 500; color: var(--ink);
 }
 .export-btns { display: flex; gap: 8px; margin-left: auto; }
+.export-menu { position: relative; }
+.export-menu-list {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 30;
+  background: #fff; border: 1px solid var(--hairline); border-radius: 12px;
+  padding: 4px; min-width: 140px;
+  box-shadow: 0 8px 24px rgba(71, 48, 42, .14);
+}
+.export-menu-list button {
+  width: 100%; text-align: left; padding: 8px 12px; border: none;
+  background: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+  color: var(--ink);
+}
+.export-menu-list button:hover { background: var(--cream); }
 
 /* ---------- tables ---------- */
 .table-wrap { overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
