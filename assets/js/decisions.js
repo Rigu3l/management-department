@@ -1,14 +1,16 @@
 /* assets/js/decisions.js — Decision Tracking page (decisions.html).
    Record management decisions with a responsible person and a
-   follow-up deadline; monitor status to completion. A deadline can
-   never be set in the past — the picker blocks past dates, and saving
-   one is rejected. An already-overdue decision keeps its deadline
-   when edited, so overdue items stay editable. */
+   follow-up deadline; monitor status to completion. Status is NOT
+   management's to set: the assigned department decides pending,
+   in progress, or completed, so this page shows it read-only and
+   only offers the approval step once a decision is completed.
+   A deadline can never be set in the past — the picker blocks past
+   dates, and saving one is rejected. An already-overdue decision
+   keeps its deadline when edited, so overdue items stay editable. */
 (function () {
   'use strict';
   const H = window.HMS;
   const $ = (id) => document.getElementById(id);
-  const STATUSES = ['pending', 'in_progress', 'completed'];
   let editing = null;
   let debounce = null;
 
@@ -55,9 +57,8 @@
       + (r.deadline ? H.fmtDate(r.deadline) : '—') + '</span>'
       + (r.overdue ? ' <span class="pill tone-red">overdue</span>' : '')
       + '</td>'
-      + '<td><select class="status-select" data-status-for="' + r.id + '" aria-label="Change status">'
-      + STATUSES.map((s) => '<option value="' + s + '"' + (r.status === s ? ' selected' : '') + '>' + s.replace('_', ' ') + '</option>').join('')
-      + '</select></td>'
+      // Status is read-only here: the assigned department sets it.
+      + '<td style="white-space:nowrap">' + H.pill(r.status) + '</td>'
       // Approval is management's step, and only opens once the assigned
       // department flags the decision done (status completed).
       + '<td style="white-space:nowrap">' + (r.status !== 'completed'
@@ -76,12 +77,6 @@
       b.addEventListener('click', async () => {
         const row = rows.find((r) => r.id === Number(b.dataset.approve));
         await H.store.saveDecision({ ...row, approved: row.approved ? 0 : 1 });
-        load();
-      }));
-    $('dec-rows').querySelectorAll('[data-status-for]').forEach((sel) =>
-      sel.addEventListener('change', async () => {
-        const row = rows.find((r) => r.id === Number(sel.dataset.statusFor));
-        await H.store.saveDecision({ ...row, status: sel.value });
         load();
       }));
     $('dec-rows').querySelectorAll('[data-edit]').forEach((b) =>
@@ -111,7 +106,6 @@
     const today = H.todayISO();
     const existing = row && row.deadline ? String(row.deadline).slice(0, 10) : '';
     $('df-deadline').min = existing && existing < today ? existing : today;
-    $('df-status').value = row ? row.status : 'pending';
     H.openModal('modal-decision');
   }
 
@@ -137,7 +131,9 @@
         assigned_to: $('df-to').value || null,
         department_id: $('df-dept').value ? Number($('df-dept').value) : null,
         deadline: $('df-deadline').value || null,
-        status: $('df-status').value,
+        // Status is the assigned department's call: new decisions start
+        // pending, and editing keeps the department's current status.
+        status: editing && editing.id ? editing.status : 'pending',
         // Editing keeps the current approval; only the approval button changes it.
         approved: editing && editing.approved ? 1 : 0,
       });
