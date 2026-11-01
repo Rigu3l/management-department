@@ -35,6 +35,7 @@
       ['In progress', s.in_progress, 'amber'],
       ['Completed', s.completed, 'green'],
       ['Overdue', s.overdue, 'red'],
+      ['For approval', s.for_approval || 0, 'amber'],
     ];
     $('dec-summary').innerHTML = items.map(([label, value, tone]) =>
       '<div class="chip"><span class="chip-label" style="margin:0">' + label + '</span>'
@@ -57,12 +58,26 @@
       + '<td><select class="status-select" data-status-for="' + r.id + '" aria-label="Change status">'
       + STATUSES.map((s) => '<option value="' + s + '"' + (r.status === s ? ' selected' : '') + '>' + s.replace('_', ' ') + '</option>').join('')
       + '</select></td>'
+      // Approval is management's step, and only opens once the assigned
+      // department flags the decision done (status completed).
+      + '<td style="white-space:nowrap">' + (r.status !== 'completed'
+          ? '<span style="color:var(--muted)">Awaiting completion</span>'
+          : r.approved
+            ? '<button class="btn btn-sm" data-approve="' + r.id + '" title="Click to unapprove" style="background:var(--green-bg);color:#047857;border-color:transparent">' + H.icon('check', 13) + ' Approved</button>'
+            : '<button class="btn btn-sm" data-approve="' + r.id + '" title="Approve this completed decision" style="background:var(--amber-bg);color:#b45309;border-color:transparent">For approval</button>')
+      + '</td>'
       + '<td><div class="row-actions">'
       + '<button data-edit="' + r.id + '" title="Edit">' + H.icon('edit', 15) + '</button>'
       + '<button class="danger" data-del="' + r.id + '" title="Delete">' + H.icon('trash', 15) + '</button>'
       + '</div></td></tr>'
-    ).join('') : '<tr><td colspan="6" class="empty-cell">No decisions match these filters.</td></tr>';
+    ).join('') : '<tr><td colspan="7" class="empty-cell">No decisions match these filters.</td></tr>';
 
+    $('dec-rows').querySelectorAll('[data-approve]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        const row = rows.find((r) => r.id === Number(b.dataset.approve));
+        await H.store.saveDecision({ ...row, approved: row.approved ? 0 : 1 });
+        load();
+      }));
     $('dec-rows').querySelectorAll('[data-status-for]').forEach((sel) =>
       sel.addEventListener('change', async () => {
         const row = rows.find((r) => r.id === Number(sel.dataset.statusFor));
@@ -123,6 +138,8 @@
         department_id: $('df-dept').value ? Number($('df-dept').value) : null,
         deadline: $('df-deadline').value || null,
         status: $('df-status').value,
+        // Editing keeps the current approval; only the approval button changes it.
+        approved: editing && editing.approved ? 1 : 0,
       });
       H.closeModal('modal-decision');
       load();

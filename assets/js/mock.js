@@ -238,15 +238,16 @@
     ['Switch laundry service to in-house', 'Cost comparison shows in-house laundry saves about 18% monthly.', 'Karen Joy Mendoza', 'Rosa Elena Diaz', 3, -4, 'in_progress'],
     ['Renew corporate rate agreement with ABC Corp', 'Corporate bookings are 12% of room revenue; renew at the same rate.', 'Maria Clara Santos', 'Karen Joy Mendoza', 6, 3, 'pending'],
     ['Upgrade Wi-Fi access points on 3rd floor', 'Repeated guest complaints about weak signal on the 3rd floor.', 'Jose Miguel Reyes', 'Roberto Luis Garcia', 7, -11, 'completed'],
-    ['Introduce guest feedback QR cards in rooms', 'Collect more feedback at checkout using QR cards per room.', 'Maria Clara Santos', 'Ana Patricia Lim', 2, -2, 'completed'],
+    ['Introduce guest feedback QR cards in rooms', 'Collect more feedback at checkout using QR cards per room.', 'Maria Clara Santos', 'Ana Patricia Lim', 2, -2, 'completed', 1],
     ['Reduce breakfast buffet food waste', 'Track daily leftovers and adjust preparation quantities.', 'Chef Marco Antonio Lee', 'Antonio Miguel Flores', 5, 8, 'in_progress'],
     ['Schedule quarterly fire safety drill', 'Coordinate with Security and local fire station.', 'Fernando Jose Navarro', 'Fernando Jose Navarro', 8, 15, 'pending'],
     ['Approve Q4 marketing campaign budget', 'Social media and travel-site ads for the holiday season.', 'Maria Clara Santos', 'Karen Joy Mendoza', 6, 25, 'pending'],
-  ].map(([title, description, decided_by, assigned_to, department_id, dl, status], i) => ({
+  ].map(([title, description, decided_by, assigned_to, department_id, dl, status, appr], i) => ({
     id: nextId++, title, description, decided_by, assigned_to, department_id,
     department: DEPARTMENTS.find((d) => d.id === department_id).name,
     deadline: D(dl), status, created_at: `${D(-intBetween(3, 25))} 10:00:00`,
     completed_at: status === 'completed' ? `${D(-2)} 15:00:00` : null,
+    approved: status === 'completed' && appr ? 1 : 0,
     overdue: status !== 'completed' && D(dl) < TODAY,
   }));
 
@@ -830,6 +831,7 @@
         in_progress: list.filter((d) => d.status === 'in_progress').length,
         completed: list.filter((d) => d.status === 'completed').length,
         overdue: list.filter((d) => d.overdue).length,
+        for_approval: list.filter((d) => d.status === 'completed' && !d.approved).length,
       },
     };
   }
@@ -837,6 +839,7 @@
   function mockSaveDecision(data) {
     const shaped = { ...data, department_id: data.department_id ? Number(data.department_id) : null,
       department: data.department_id ? DEPARTMENTS.find((d) => d.id === Number(data.department_id))?.name : 'Hotel-wide',
+      approved: data.status === 'completed' && data.approved ? 1 : 0,
       overdue: data.status !== 'completed' && data.deadline && data.deadline < TODAY };
     if (data.id) {
       const i = mockDecisions.findIndex((d) => d.id === data.id);

@@ -193,6 +193,7 @@ CREATE TABLE IF NOT EXISTS decisions (
   status        ENUM('pending','in_progress','completed') NOT NULL DEFAULT 'pending',
   created_at    DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   completed_at  DATETIME NULL,
+  approved      TINYINT(1) NOT NULL DEFAULT 0, -- management approval, set only once the department flags the decision completed
   CONSTRAINT fk_dec_dept FOREIGN KEY (department_id) REFERENCES departments(id)
 ) ENGINE=InnoDB;
 

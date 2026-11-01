@@ -25,13 +25,14 @@ if ($method === 'GET') {
     $sql .= " ORDER BY dc.status = 'completed', dc.deadline IS NULL, dc.deadline, dc.created_at DESC";
     $stmt = $pdo->prepare($sql);
     $stmt->execute($args);
-    $rows = array_map(fn($r) => $r + ['overdue' => (bool) $r['overdue']], $stmt->fetchAll());
+    $rows = array_map(fn($r) => $r + ['overdue' => (bool) $r['overdue'], 'approved' => (bool) ($r['approved'] ?? 0)], $stmt->fetchAll());
     $summary = [
         'total' => count($rows),
         'pending' => count(array_filter($rows, fn($r) => $r['status'] === 'pending')),
         'in_progress' => count(array_filter($rows, fn($r) => $r['status'] === 'in_progress')),
         'completed' => count(array_filter($rows, fn($r) => $r['status'] === 'completed')),
         'overdue' => count(array_filter($rows, fn($r) => $r['overdue'])),
+        'for_approval' => count(array_filter($rows, fn($r) => $r['status'] === 'completed' && !$r['approved'])),
     ];
     json_response(['success' => true, 'data' => $rows, 'summary' => $summary]);
 }
@@ -49,12 +50,15 @@ if ($method === 'POST' || $method === 'PUT') {
         'status' => in_array($body['status'] ?? 'pending', ['pending', 'in_progress', 'completed'], true)
             ? $body['status'] : 'pending',
     ];
+    // Approval only sticks on a completed decision; reopening one clears
+    // its approval so it must be approved again after it is re-done.
+    $fields['approved'] = ($fields['status'] === 'completed' && !empty($body['approved'])) ? 1 : 0;
     if ($fields['title'] === '') json_error('Title is required', 422);
     if ($method === 'POST') {
         $stmt = $pdo->prepare(
-            "INSERT INTO decisions (title, description, decided_by, assigned_to, department_id, deadline, status, completed_at)
+            "INSERT INTO decisions (title, description, decided_by, assigned_to, department_id, deadline, status, completed_at, approved)
              VALUES (:title, :description, :decided_by, :assigned_to, :department_id, :deadline, :status,
-                     CASE WHEN :status = 'completed' THEN NOW() ELSE NULL END)");
+                     CASE WHEN :status = 'completed' THEN NOW() ELSE NULL END, :approved)");
         $stmt->execute($fields);
         json_response(['success' => true, 'id' => (int) $pdo->lastInsertId()]);
     }
@@ -64,7 +68,7 @@ if ($method === 'POST' || $method === 'PUT') {
     $stmt = $pdo->prepare(
         "UPDATE decisions SET title = :title, description = :description, decided_by = :decided_by,
                 assigned_to = :assigned_to, department_id = :department_id, deadline = :deadline,
-                status = :status,
+                status = :status, approved = :approved,
                 completed_at = CASE WHEN :status = 'completed' THEN COALESCE(completed_at, NOW()) ELSE NULL END
           WHERE id = :id");
     $stmt->execute($fields);
