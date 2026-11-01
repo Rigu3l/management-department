@@ -272,7 +272,7 @@ select.input { width: auto; }
 .export-menu-list button:hover { background: var(--cream); }
 
 /* ---------- tables ---------- */
-.table-wrap { overflow-x: auto; margin: 0 -20px; padding: 0 20px; }
+.table-wrap { overflow-x: auto; }
 table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 table.tbl th {
   text-align: left; font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
@@ -280,6 +280,7 @@ table.tbl th {
   border-bottom: 1px solid var(--hairline); white-space: nowrap;
 }
 table.tbl td { padding: 10px 16px 10px 0; border-bottom: 1px solid rgba(236, 220, 201, .6); color: rgba(71, 48, 42, .88); vertical-align: top; }
+table.tbl th:first-child, table.tbl td:first-child { padding-left: 16px; }
 table.tbl tbody tr:nth-child(even) { background: rgba(250, 244, 234, .6); }
 table.tbl td.strong { color: var(--ink); font-weight: 500; }
 td .cell-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
