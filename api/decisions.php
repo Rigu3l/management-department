@@ -32,7 +32,7 @@ if ($method === 'GET') {
         'in_progress' => count(array_filter($rows, fn($r) => $r['status'] === 'in_progress')),
         'completed' => count(array_filter($rows, fn($r) => $r['status'] === 'completed')),
         'overdue' => count(array_filter($rows, fn($r) => $r['overdue'])),
-        'for_approval' => count(array_filter($rows, fn($r) => $r['status'] === 'completed' && !$r['approved'])),
+        'for_approval' => count(array_filter($rows, fn($r) => $r['status'] === 'completed' && !($r['approved'] ?? 0))),
     ];
     json_response(['success' => true, 'data' => $rows, 'summary' => $summary]);
 }
@@ -40,6 +40,7 @@ if ($method === 'GET') {
 $body = read_json_body();
 
 if ($method === 'POST' || $method === 'PUT') {
+  try {
     $fields = [
         'title' => trim($body['title'] ?? ''),
         'description' => $body['description'] ?? null,
@@ -73,6 +74,14 @@ if ($method === 'POST' || $method === 'PUT') {
           WHERE id = :id");
     $stmt->execute($fields);
     json_response(['success' => true]);
+  } catch (PDOException $e) {
+    // A bare 500 hides the cause; the common one is a live DB that has not
+    // had the approval column added yet, so say so outright.
+    if (str_contains($e->getMessage(), 'approved')) {
+        json_error("Database is missing the 'approved' column. Run: ALTER TABLE decisions ADD COLUMN approved TINYINT(1) NOT NULL DEFAULT 0 AFTER completed_at;", 500);
+    }
+    throw $e;
+  }
 }
 
 if ($method === 'DELETE') {
