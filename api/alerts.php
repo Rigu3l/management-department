@@ -45,8 +45,8 @@ if ($method === 'PUT') {
     }
     $pdo->prepare(
         "UPDATE alerts SET status = :s,
-                resolved_at = CASE WHEN :s = 'resolved' THEN NOW() ELSE resolved_at END
-          WHERE id = :id")->execute(['s' => $status, 'id' => $id]);
+                resolved_at = CASE WHEN :s2 = 'resolved' THEN NOW() ELSE resolved_at END
+          WHERE id = :id")->execute(['s' => $status, 's2' => $status, 'id' => $id]);
     json_response(['success' => true]);
 }
 

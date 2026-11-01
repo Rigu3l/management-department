@@ -27,8 +27,8 @@ if ($method === 'GET' && $kind === 'budgets') {
         // department, when the budget is department-scoped) that month.
         $sql = "SELECT COALESCE(SUM(amount),0) FROM financial_transactions
                  WHERE type = 'expense' AND category = :cat
-                   AND txn_date >= :first AND txn_date < DATE_ADD(:first, INTERVAL 1 MONTH)";
-        $args = ['cat' => $b['category'], 'first' => $first];
+                   AND txn_date >= :first AND txn_date < DATE_ADD(:first2, INTERVAL 1 MONTH)";
+        $args = ['cat' => $b['category'], 'first' => $first, 'first2' => $first];
         if ($b['department_id'] !== null) { $sql .= " AND department_id = :dept"; $args['dept'] = $b['department_id']; }
         $s = $pdo->prepare($sql); $s->execute($args);
         $spent = (float) $s->fetchColumn();

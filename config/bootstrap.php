@@ -88,9 +88,9 @@ function occupied_room_nights(PDO $pdo, string $from, string $to): int {
                                       GREATEST(check_in, :from))), 0)
            FROM reservations
           WHERE status IN ('confirmed','checked_in','checked_out')
-            AND check_in <= :to AND check_out > :from"
+            AND check_in <= :to2 AND check_out > :from2"
     );
-    $stmt->execute(['from' => $from, 'to' => $to]);
+    $stmt->execute(['from' => $from, 'to' => $to, 'from2' => $from, 'to2' => $to]);
     return (int) $stmt->fetchColumn();
 }
 

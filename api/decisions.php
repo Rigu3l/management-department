@@ -54,12 +54,16 @@ if ($method === 'POST' || $method === 'PUT') {
     // Approval only sticks on a completed decision; reopening one clears
     // its approval so it must be approved again after it is re-done.
     $fields['approved'] = ($fields['status'] === 'completed' && !empty($body['approved'])) ? 1 : 0;
+    // Native prepares (EMULATE_PREPARES off) count placeholder occurrences,
+    // not names: reusing :status in the CASE below throws HY093, so the
+    // second occurrence gets its own name bound to the same value.
+    $fields['status2'] = $fields['status'];
     if ($fields['title'] === '') json_error('Title is required', 422);
     if ($method === 'POST') {
         $stmt = $pdo->prepare(
             "INSERT INTO decisions (title, description, decided_by, assigned_to, department_id, deadline, status, completed_at, approved)
              VALUES (:title, :description, :decided_by, :assigned_to, :department_id, :deadline, :status,
-                     CASE WHEN :status = 'completed' THEN NOW() ELSE NULL END, :approved)");
+                     CASE WHEN :status2 = 'completed' THEN NOW() ELSE NULL END, :approved)");
         $stmt->execute($fields);
         json_response(['success' => true, 'id' => (int) $pdo->lastInsertId()]);
     }
@@ -70,7 +74,7 @@ if ($method === 'POST' || $method === 'PUT') {
         "UPDATE decisions SET title = :title, description = :description, decided_by = :decided_by,
                 assigned_to = :assigned_to, department_id = :department_id, deadline = :deadline,
                 status = :status, approved = :approved,
-                completed_at = CASE WHEN :status = 'completed' THEN COALESCE(completed_at, NOW()) ELSE NULL END
+                completed_at = CASE WHEN :status2 = 'completed' THEN COALESCE(completed_at, NOW()) ELSE NULL END
           WHERE id = :id");
     $stmt->execute($fields);
     json_response(['success' => true]);

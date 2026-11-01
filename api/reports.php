@@ -198,9 +198,9 @@ case 'employees':
                    (SELECT COUNT(*) FROM housekeeping_tasks h WHERE h.assigned_to = e.id AND h.status='completed'
                       AND h.scheduled_date BETWEEN :from AND :to) hk_done,
                    (SELECT COUNT(*) FROM maintenance_requests mr WHERE mr.assigned_to = e.id AND mr.status='completed'
-                      AND DATE(mr.reported_at) BETWEEN :from AND :to) maint_done
+                      AND DATE(mr.reported_at) BETWEEN :from2 AND :to2) maint_done
               FROM employees e JOIN departments d ON d.id = e.department_id";
-    $args = ['from' => $from, 'to' => $to];
+    $args = ['from' => $from, 'to' => $to, 'from2' => $from, 'to2' => $to];
     if ($dept !== null) { $sql .= " WHERE e.department_id = :dept"; $args['dept'] = $dept; }
     $sql .= " ORDER BY d.name, e.full_name";
     $stmt = $pdo->prepare($sql); $stmt->execute($args);

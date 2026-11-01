@@ -16,9 +16,9 @@ $stmt = $pdo->prepare(
     "SELECT COUNT(*) total,
             SUM(status = 'cancelled') cancelled,
             SUM(check_in BETWEEN :from AND :to) arrivals,
-            SUM(check_out BETWEEN :from AND :to AND status = 'checked_out') departures
-       FROM reservations WHERE created_at >= :from AND created_at < DATE_ADD(:to, INTERVAL 1 DAY)");
-$stmt->execute(['from' => $from, 'to' => $to]);
+            SUM(check_out BETWEEN :from2 AND :to2 AND status = 'checked_out') departures
+       FROM reservations WHERE created_at >= :from3 AND created_at < DATE_ADD(:to3, INTERVAL 1 DAY)");
+$stmt->execute(['from' => $from, 'to' => $to, 'from2' => $from, 'to2' => $to, 'from3' => $from, 'to3' => $to]);
 $resv = $stmt->fetch();
 
 // Guest satisfaction in the period.
