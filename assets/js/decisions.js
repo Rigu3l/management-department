@@ -1,0 +1,163 @@
+/* assets/js/decisions.js — Decision Tracking page (decisions.html).
+   Record management decisions with a responsible person and a
+   follow-up deadline; monitor status to completion. Status is NOT
+   management's to set: the assigned department decides pending,
+   in progress, or completed, so this page shows it read-only and
+   only offers the approval step once a decision is completed.
+   A deadline can never be set in the past — the picker blocks past
+   dates, and saving one is rejected. An already-overdue decision
+   keeps its deadline when edited, so overdue items stay editable. */
+(function () {
+  'use strict';
+  const H = window.HMS;
+  const $ = (id) => document.getElementById(id);
+  let editing = null;
+  let debounce = null;
+
+  async function load() {
+    $('dec-error').innerHTML = '';
+    try {
+      const r = await H.store.getDecisions({
+        q: $('d-q').value || undefined,
+        status: $('d-status').value || undefined,
+        department: $('d-dept').value || undefined,
+      });
+      renderSummary(r.summary);
+      renderRows(r.data);
+    } catch (e) {
+      $('dec-error').innerHTML = '<div class="error-box">' + H.esc(e.message) + '</div>';
+    }
+  }
+
+  function renderSummary(s) {
+    if (!s) { $('dec-summary').innerHTML = ''; return; }
+    const items = [
+      ['Total decisions', s.total, 'gray'],
+      ['Pending', s.pending, 'amber'],
+      ['In progress', s.in_progress, 'amber'],
+      ['Completed', s.completed, 'green'],
+      ['Overdue', s.overdue, 'red'],
+      ['For approval', s.for_approval || 0, 'amber'],
+    ];
+    $('dec-summary').innerHTML = items.map(([label, value, tone]) =>
+      '<div class="chip"><span class="chip-label" style="margin:0">' + label + '</span>'
+      + '<span class="pill tone-' + tone + '">' + value + '</span></div>'
+    ).join('');
+  }
+
+  function renderRows(rows) {
+    $('dec-rows').innerHTML = rows.length ? rows.map((r) =>
+      '<tr><td style="max-width:420px"><div style="font-weight:500;color:var(--ink)">' + H.esc(r.title) + '</div>'
+      + (r.description ? '<div class="cell-sub" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">' + H.esc(r.description) + '</div>' : '')
+      + (r.decided_by ? '<div class="cell-sub">Decided by ' + H.esc(r.decided_by) + '</div>' : '')
+      + '</td>'
+      + '<td style="white-space:nowrap">' + H.esc(r.assigned_to || '—') + '</td>'
+      + '<td style="white-space:nowrap">' + H.esc(r.department || 'Hotel-wide') + '</td>'
+      + '<td style="white-space:nowrap"><span' + (r.overdue ? ' style="color:var(--red);font-weight:600"' : '') + '>'
+      + (r.deadline ? H.fmtDate(r.deadline) : '—') + '</span>'
+      + (r.overdue ? ' <span class="pill tone-red">overdue</span>' : '')
+      + '</td>'
+      // Status is read-only here: the assigned department sets it.
+      + '<td style="white-space:nowrap">' + H.pill(r.status) + '</td>'
+      // Approval is management's step, and only opens once the assigned
+      // department flags the decision done (status completed).
+      + '<td style="white-space:nowrap">' + (r.status !== 'completed'
+          ? '<span style="color:var(--muted)">Awaiting completion</span>'
+          : r.approved
+            ? '<button class="btn btn-sm" data-approve="' + r.id + '" title="Click to unapprove" style="background:var(--green-bg);color:#047857;border-color:transparent">' + H.icon('check', 13) + ' Approved</button>'
+            : '<button class="btn btn-sm" data-approve="' + r.id + '" title="Approve this completed decision" style="background:var(--amber-bg);color:#b45309;border-color:transparent">For approval</button>')
+      + '</td>'
+      + '<td><div class="row-actions">'
+      + '<button data-edit="' + r.id + '" title="Edit">' + H.icon('edit', 15) + '</button>'
+      + '<button class="danger" data-del="' + r.id + '" title="Delete">' + H.icon('trash', 15) + '</button>'
+      + '</div></td></tr>'
+    ).join('') : '<tr><td colspan="7" class="empty-cell">No decisions match these filters.</td></tr>';
+
+    $('dec-rows').querySelectorAll('[data-approve]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        const row = rows.find((r) => r.id === Number(b.dataset.approve));
+        await H.store.saveDecision({ ...row, approved: row.approved ? 0 : 1 });
+        load();
+      }));
+    $('dec-rows').querySelectorAll('[data-edit]').forEach((b) =>
+      b.addEventListener('click', () => openForm(rows.find((r) => r.id === Number(b.dataset.edit)))));
+    $('dec-rows').querySelectorAll('[data-del]').forEach((b) =>
+      b.addEventListener('click', async () => {
+        const row = rows.find((r) => r.id === Number(b.dataset.del));
+        if (await H.confirmDialog('Delete this decision?', row.title)) {
+          await H.store.deleteDecision(row.id);
+          load();
+        }
+      }));
+  }
+
+  function openForm(row) {
+    editing = row || {};
+    $('df-title').textContent = row ? 'Edit decision' : 'Record decision';
+    $('df-error').textContent = '';
+    $('df-name').value = row ? row.title : '';
+    $('df-desc').value = row ? (row.description || '') : '';
+    $('df-by').value = row ? (row.decided_by || '') : '';
+    $('df-to').value = row ? (row.assigned_to || '') : '';
+    $('df-dept').value = row && row.department_id != null ? String(row.department_id) : '';
+    $('df-deadline').value = row && row.deadline ? String(row.deadline).slice(0, 10) : '';
+    // New decisions: no past dates. Editing: the existing deadline stays
+    // selectable (overdue items must remain editable), nothing earlier.
+    const today = H.todayISO();
+    const existing = row && row.deadline ? String(row.deadline).slice(0, 10) : '';
+    $('df-deadline').min = existing && existing < today ? existing : today;
+    H.openModal('modal-decision');
+  }
+
+  async function save() {
+    // The picker blocks past dates, but typed input can bypass it, so
+    // validate here too. An unchanged existing deadline is allowed
+    // through, even when it is already past (overdue).
+    const dl = $('df-deadline').value;
+    const orig = editing && editing.deadline ? String(editing.deadline).slice(0, 10) : null;
+    if (dl && dl < H.todayISO() && dl !== orig) {
+      $('df-error').textContent = 'Deadline cannot be in the past. Please choose today or a later date.';
+      return;
+    }
+    const btn = $('df-save');
+    btn.disabled = true;
+    $('df-error').textContent = '';
+    try {
+      await H.store.saveDecision({
+        ...(editing && editing.id ? { id: editing.id } : {}),
+        title: $('df-name').value,
+        description: $('df-desc').value || null,
+        decided_by: $('df-by').value || null,
+        assigned_to: $('df-to').value || null,
+        department_id: $('df-dept').value ? Number($('df-dept').value) : null,
+        deadline: $('df-deadline').value || null,
+        // Status is the assigned department's call: new decisions start
+        // pending, and editing keeps the department's current status.
+        status: editing && editing.id ? editing.status : 'pending',
+        // Editing keeps the current approval; only the approval button changes it.
+        approved: editing && editing.approved ? 1 : 0,
+      });
+      H.closeModal('modal-decision');
+      load();
+    } catch (e) {
+      $('df-error').textContent = e.message;
+    }
+    btn.disabled = false;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    $('d-dept').innerHTML = '<option value="">All departments</option>'
+      + H.DEPARTMENTS.map((d) => '<option value="' + d.id + '">' + d.name + '</option>').join('');
+    $('df-dept').innerHTML = '<option value="">Hotel-wide</option>'
+      + H.DEPARTMENTS.map((d) => '<option value="' + d.id + '">' + d.name + '</option>').join('');
+    $('d-q').addEventListener('input', () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(load, 250);
+    });
+    $('d-status').addEventListener('change', load);
+    $('d-dept').addEventListener('change', load);
+    $('btn-add-decision').addEventListener('click', () => openForm(null));
+    $('df-save').addEventListener('click', save);
+    load();
+  });
+})();

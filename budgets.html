@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Budgets &amp; Targets — Management Department</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+</head>
+<body data-page="budgets">
+  <div class="layout">
+    <div id="sidebar"></div>
+    <div class="main-wrap">
+      <div class="mobile-topbar">
+        <button class="icon-btn" id="btn-menu" aria-label="Open menu"><span data-icon="menu" data-icon-size="20"></span></button>
+        <span class="title">Budgets &amp; Targets</span>
+      </div>
+
+      <main class="page">
+        <div class="page-head">
+          <h1>Budgets &amp; Targets</h1>
+          <p>Monthly budgets and KPI targets, tracked against what the hotel actually spends and achieves.</p>
+        </div>
+
+        <div class="tabs">
+          <button id="tab-budgets" class="active">Budgets</button>
+          <button id="tab-targets">KPI Targets</button>
+        </div>
+
+        <!-- Budgets tab -->
+        <section id="section-budgets">
+          <div class="card">
+            <div class="toolbar">
+              <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)">
+                Month
+                <input type="month" id="bud-month" class="input" style="width:auto" />
+              </label>
+              <span id="bud-totals" style="font-size:14px;color:var(--muted)"></span>
+            </div>
+            <div id="bud-error"></div>
+            <div class="table-wrap nice-scroll">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>Department</th><th>Category</th><th>Budget</th><th>Spent</th>
+                    <th>Remaining</th><th style="width:190px">Used</th>
+                  </tr>
+                </thead>
+                <tbody id="bud-rows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- KPI Targets tab -->
+        <section id="section-targets" class="hidden">
+          <div class="card">
+            <div class="toolbar">
+              <span style="font-size:14px;color:var(--muted)">Actuals measured for <strong id="tgt-range-label" style="color:var(--ink)"></strong></span>
+            </div>
+            <div class="filter-bar" style="margin-bottom:8px">
+              <div class="period-group">
+                <button data-period="daily">Daily</button>
+                <button data-period="weekly">Weekly</button>
+                <button data-period="monthly" class="active">Monthly</button>
+                <button data-period="yearly">Yearly</button>
+                <button data-period="custom">Custom range</button>
+              </div>
+              <div class="date-range">
+                <input type="date" id="f-from" />
+                <span>to</span>
+                <input type="date" id="f-to" />
+              </div>
+            </div>
+            <div id="tgt-error"></div>
+            <div class="table-wrap nice-scroll">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>KPI</th><th>Department</th><th>Actual</th><th>Target</th>
+                    <th style="width:210px">Attainment</th>
+                  </tr>
+                </thead>
+                <tbody id="tgt-rows"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="assets/vendor/chart.umd.min.js"></script>
+  <script src="assets/js/common.js"></script>
+  <script src="assets/js/mock.js"></script>
+  <script src="assets/js/budgets.js"></script>
+</body>
+</html>
